@@ -1,10 +1,10 @@
 'use client';
 import { useState } from 'react';
 
-export function HostControls({ isHost, activeRoundId, onStart, onReveal, onFinal, deck }: {
-  isHost: boolean; activeRoundId: string | null;
+export function HostControls({ isHost, activeRoundId, revealed, onStart, onReveal, onFinal, onNext, deck }: {
+  isHost: boolean; activeRoundId: string | null; revealed: boolean;
   onStart: (title: string) => void; onReveal: () => void;
-  onFinal: (value: string) => void; deck: string[];
+  onFinal: (value: string) => void; onNext: () => void; deck: string[];
 }) {
   const [title, setTitle] = useState(''); const [final, setFinal] = useState(deck[0]);
   if (!isHost) return null;
@@ -15,12 +15,14 @@ export function HostControls({ isHost, activeRoundId, onStart, onReveal, onFinal
             <input placeholder="tarea a estimar" value={title} onChange={e => setTitle(e.target.value)} />
             <button onClick={() => { if (title) { onStart(title); setTitle(''); } }}>Iniciar ronda</button>
           </>
+        : !revealed
+        ? <button onClick={onReveal}>Revelar</button>
         : <>
-            <button onClick={onReveal}>Revelar</button>
             <select value={final} onChange={e => setFinal(e.target.value)}>
               {deck.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
             <button onClick={() => onFinal(final)}>Fijar estimación</button>
+            <button onClick={onNext}>Siguiente ronda</button>
           </>}
     </div>
   );

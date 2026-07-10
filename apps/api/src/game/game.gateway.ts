@@ -52,19 +52,19 @@ export class GameGateway implements OnGatewayConnection {
   @SubscribeMessage('cast_vote')
   async onVote(@ConnectedSocket() s: Socket, @MessageBody() b: { roomId: string; roundId: string; value: string }) {
     try {
-      await this.game.castVote(s.data.userId, b.roundId, b.value);
-      this.server.to(`room:${b.roomId}`).emit('vote_cast', { userId: s.data.userId });
+      const roomId = await this.game.castVote(s.data.userId, b.roundId, b.value);
+      this.server.to(`room:${roomId}`).emit('vote_cast', { userId: s.data.userId });
     } catch (e: any) { s.emit('error', { message: e.message }); }
   }
 
   @SubscribeMessage('reveal')
   async onReveal(@ConnectedSocket() s: Socket, @MessageBody() b: { roomId: string; roundId: string }) {
     try {
-      const { votes, avg } = await this.game.reveal(s.data.userId, b.roundId);
-      this.server.to(`room:${b.roomId}`).emit('round_revealed', {
+      const result = await this.game.reveal(s.data.userId, b.roundId);
+      this.server.to(`room:${result.roomId}`).emit('round_revealed', {
         roundId: b.roundId,
-        votes: votes.map((v) => ({ userId: v.userId, name: v.user.name, value: v.value })),
-        avg,
+        votes: result.votes.map((v) => ({ userId: v.userId, name: v.user.name, value: v.value })),
+        avg: result.avg,
       });
     } catch (e: any) { s.emit('error', { message: e.message }); }
   }
@@ -72,8 +72,8 @@ export class GameGateway implements OnGatewayConnection {
   @SubscribeMessage('set_final')
   async onFinal(@ConnectedSocket() s: Socket, @MessageBody() b: { roomId: string; roundId: string; finalEstimate: string }) {
     try {
-      await this.game.setFinal(s.data.userId, b.roundId, b.finalEstimate);
-      this.server.to(`room:${b.roomId}`).emit('round_finalized', { roundId: b.roundId, finalEstimate: b.finalEstimate });
+      const updated = await this.game.setFinal(s.data.userId, b.roundId, b.finalEstimate);
+      this.server.to(`room:${updated.roomId}`).emit('round_finalized', { roundId: b.roundId, finalEstimate: b.finalEstimate });
     } catch (e: any) { s.emit('error', { message: e.message }); }
   }
 

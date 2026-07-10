@@ -94,6 +94,10 @@ export default function Room() {
     if (!activeRound) return;
     socketRef.current?.emit('set_final', { roomId, roundId: activeRound.id, finalEstimate });
   };
+  const next = () => {
+    socketRef.current?.emit('next_round', { roomId });
+    setRevealed(false); setVotes([]); setAvg(null); setMyVote(null); setVotedIds(new Set());
+  };
 
   if (loading || !user) return <p>Cargando...</p>;
   if (err) return <main style={{ padding: 40 }}><p style={{ color: 'red' }}>{err}</p></main>;
@@ -112,8 +116,8 @@ export default function Room() {
       {revealed && <p><b>Promedio:</b> {avg ?? '—'}</p>}
 
       <HostControls
-        isHost={isHost} activeRoundId={activeRound?.id ?? null}
-        onStart={start} onReveal={reveal} onFinal={setFinal} deck={state.deck ?? DECK}
+        isHost={isHost} activeRoundId={activeRound?.id ?? null} revealed={revealed}
+        onStart={start} onReveal={reveal} onFinal={setFinal} onNext={next} deck={state.deck ?? DECK}
       />
 
       {activeRound && !revealed && (

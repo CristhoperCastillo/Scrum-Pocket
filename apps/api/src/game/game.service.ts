@@ -37,6 +37,7 @@ export class GameService {
       update: { value },
       create: { roundId, userId, value },
     });
+    return round.roomId;
   }
 
   async reveal(userId: string, roundId: string) {
@@ -48,7 +49,7 @@ export class GameService {
     });
     const avg = GameService.computeAvg(votes.map((v) => v.value));
     await this.prisma.round.update({ where: { id: roundId }, data: { status: 'REVEALED', avg } });
-    return { votes, avg };
+    return { roomId: round.roomId, votes, avg };
   }
 
   async setFinal(userId: string, roundId: string, finalEstimate: string) {
