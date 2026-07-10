@@ -12,5 +12,6 @@
     "baseUrl": "./",
     "ignoreDeprecations": "6.0",
     "types": ["jest", "node"]
-  }
+  },
+  "exclude": ["node_modules", "dist", "test"]
 }
