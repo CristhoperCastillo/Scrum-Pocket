@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String       @id @default(cuid())
+  email            String       @unique
+  passwordHash     String
+  name             String
+  refreshTokenHash String?
+  createdAt        DateTime     @default(now())
+  memberships      RoomMember[]
+  hostedRooms      Room[]       @relation("HostRooms")
+  votes            Vote[]
+}
+
+model Room {
+  id         String       @id @default(cuid())
+  name       String
+  inviteCode String       @unique
+  hostId     String
+  host       User         @relation("HostRooms", fields: [hostId], references: [id])
+  deck       String[]     @default(["1","2","3","5","8","13","21","34","55","89","?","☕"])
+  status     RoomStatus   @default(ACTIVE)
+  createdAt  DateTime     @default(now())
+  members    RoomMember[]
+  rounds     Round[]
+}
+
+model RoomMember {
+  id       String     @id @default(cuid())
+  roomId   String
+  room     Room       @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User       @relation(fields: [userId], references: [id])
+  role     MemberRole @default(PLAYER)
+  joinedAt DateTime   @default(now())
+  @@unique([roomId, userId])
+}
+
+model Round {
+  id            String      @id @default(cuid())
+  roomId        String
+  room          Room        @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  taskTitle     String
+  status        RoundStatus @default(VOTING)
+  finalEstimate String?
+  avg           Float?
+  createdAt     DateTime    @default(now())
+  votes         Vote[]
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  roundId   String
+  round     Round    @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  value     String
+  createdAt DateTime @default(now())
+  @@unique([roundId, userId])
+}
+
+enum RoomStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum MemberRole {
+  HOST
+  PLAYER
+}
+
+enum RoundStatus {
+  VOTING
+  REVEALED
+}
