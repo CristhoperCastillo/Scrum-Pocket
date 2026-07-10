@@ -90,7 +90,7 @@ scrum-poker/
 - Create: `pnpm-workspace.yaml`, `package.json`, `docker-compose.yml`, `.gitignore`
 
 **Interfaces:**
-- Produces: workspace with `apps/*`; local Postgres at `postgresql://poker:poker@localhost:5432/poker`.
+- Produces: workspace with `apps/*`; local Postgres at `postgresql://poker:poker@localhost:5433/poker`.
 
 - [ ] **Step 1: git init**
 
@@ -283,7 +283,7 @@ enum RoundStatus { VOTING REVEALED }
 
 `apps/api/.env`:
 ```
-DATABASE_URL="postgresql://poker:poker@localhost:5432/poker"
+DATABASE_URL="postgresql://poker:poker@localhost:5433/poker"
 JWT_ACCESS_SECRET="dev-access-secret-change-me"
 JWT_REFRESH_SECRET="dev-refresh-secret-change-me"
 CORS_ORIGIN="http://localhost:3000"
