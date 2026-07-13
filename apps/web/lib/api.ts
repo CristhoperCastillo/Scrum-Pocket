@@ -22,4 +22,25 @@ export const api = {
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message ?? res.statusText);
     return res.status === 204 ? (undefined as T) : res.json();
   },
+
+   async requestBlob(path: string, retry = true): Promise<Blob> {
+    const res = await fetch(`${BASE}${path}`, {
+      credentials: 'include',
+      headers: {
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
+    });
+    if (res.status === 401 && retry) {
+      const r = await fetch(`${BASE}/auth/refresh`, { method: 'POST', credentials: 'include' });
+      if (r.ok) {
+        accessToken = (await r.json()).accessToken;
+        return this.requestBlob(path, false);
+      }
+    }
+    if (!res.ok) {
+      const msg = await res.json().catch(() => ({}));
+      throw new Error(msg.message ?? res.statusText);
+    }
+    return res.blob();
+  },
 };

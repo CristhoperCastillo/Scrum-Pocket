@@ -4,5 +4,12 @@
   "scripts": {
     "db:up": "docker compose up -d",
     "db:down": "docker compose down"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "pdfmake": "0.2.10"
+  },
+  "devDependencies": {
+    "@types/pdfmake": "^0.3.3"
   }
 }
