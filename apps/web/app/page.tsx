@@ -76,17 +76,17 @@ export default function Home() {
             const rot = (i - mid) * 11;
             const y = Math.abs(i - mid) * 14;
             return (
-              <div
-                key={v}
-                className="animate-flip absolute grid h-44 w-32 place-items-center rounded-2xl border border-[--color-border-hi] bg-gradient-to-b from-[--color-surface-hi] to-[--color-surface] shadow-[var(--shadow-card)]"
-                style={{
-                  transform: `rotate(${rot}deg) translateY(${y}px)`,
-                  animationDelay: `${i * 90}ms`,
-                }}
-              >
-                <span className="absolute left-3 top-2 font-mono text-xs text-[--color-faint]">{v}</span>
-                <span className="font-display text-4xl text-gold-gradient">{v}</span>
-                <Spade className="absolute bottom-2 right-3 size-3.5 text-[--color-felt]" />
+              <div key={v} className="absolute inset-0 grid place-items-center">
+                <div style={{ transform: `rotate(${rot}deg) translateY(${y}px)` }}>
+                  <div
+                    className="animate-flip relative grid h-44 w-32 place-items-center rounded-2xl border border-[--color-border-hi] bg-gradient-to-b from-[--color-surface-hi] to-[--color-surface] shadow-[var(--shadow-card)]"
+                    style={{ animationDelay: `${i * 90}ms` }}
+                  >
+                    <span className="absolute left-3 top-2 font-mono text-xs text-[--color-faint]">{v}</span>
+                    <span className="font-display text-4xl text-gold-gradient">{v}</span>
+                    <Spade className="absolute bottom-2 right-3 size-3.5 text-[--color-felt]" />
+                  </div>
+                </div>
               </div>
             );
           })}
