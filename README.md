@@ -10,11 +10,30 @@ Fibonacci cards in real time, reveal + average, persist every round.
 - `apps/web` — Next.js (App Router) + socket.io-client.
 
 ## Dev
-1. `pnpm install`
-2. `pnpm db:up`  (Postgres in Docker, host port **5433**)
-3. `cd apps/api && pnpm prisma migrate dev && pnpm start:dev`  (API on :3001)
-4. `cd apps/web && pnpm dev`  (web on :3000)
-5. Open http://localhost:3000
+
+**1. Database** (Postgres in Docker, host port **5433**) — from repo root:
+```bash
+pnpm db:up
+```
+
+**2. API** (NestJS, on :3001) — new terminal:
+```bash
+cd apps/api
+pnpm install
+pnpm prisma migrate dev   # apply schema
+pnpm start:dev            # watch mode
+```
+
+**3. Web** (Next.js, on :3000) — new terminal:
+```bash
+cd apps/web
+pnpm install
+pnpm dev
+```
+
+**4.** Open http://localhost:3000
+
+Stop the database: `pnpm db:down`.
 
 ## Env
 - `apps/api/.env`: `DATABASE_URL` (postgresql://poker:poker@localhost:5433/poker), `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `CORS_ORIGIN`, `PORT`
