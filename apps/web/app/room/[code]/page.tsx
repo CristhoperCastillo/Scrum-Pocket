@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import type { Socket } from 'socket.io-client';
-import { ArrowLeft, Copy, Check, Users } from 'lucide-react';
+import { ArrowLeft, Copy, Check, Users, FileSpreadsheet, FileText } from 'lucide-react';
+import { downloadBlob } from '../../../lib/download';
 import { useAuth } from '../../../lib/auth-context';
 import { api } from '../../../lib/api';
 import { connectGame } from '../../../lib/socket';
@@ -39,6 +40,7 @@ export default function Room() {
   const [history, setHistory] = useState<any[]>([]);
   const [err, setErr] = useState('');
   const [copied, setCopied] = useState(false);
+  const [exporting, setExporting] = useState<'excel' | 'pdf' | null>(null);
 
   const copyCode = () => {
     navigator.clipboard?.writeText(code).then(() => {
@@ -110,6 +112,20 @@ export default function Room() {
   const next = () => {
     socketRef.current?.emit('next_round', { roomId });
     setRevealed(false); setVotes([]); setAvg(null); setMyVote(null); setVotedIds(new Set());
+  };
+
+  const exportVotes = async (format: 'excel' | 'pdf') => {
+    if (!roomId) return;
+    setExporting(format);
+    try {
+      const ext = format === 'excel' ? 'xlsx' : 'pdf';
+      const blob = await api.requestBlob(`/rooms/${roomId}/export/${format}`);
+      await downloadBlob(blob, `votos-${code}.${ext}`);
+    } catch (e: any) {
+      setErr(e.message ?? 'Error al exportar');
+    } finally {
+      setExporting(null);
+    }
   };
 
   if (loading || !user)
@@ -217,6 +233,25 @@ export default function Room() {
             </div>
           </section>
         )}
+
+        <div className="mt-6 flex items-center justify-end gap-2">
+          <button
+             onClick={() => exportVotes('excel')}
+             disabled={exporting !== null}
+            className="flex items-center gap-1.5 rounded-lg border border-[--color-border] px-3 py-1.5 text-xs text-[--color-muted] transition-colors hover:border-[--color-gold] hover:text-[--color-fg] disabled:opacity-50"
+          >
+            <FileSpreadsheet className="size-3.5" />
+            {exporting === 'excel' ? 'Generando…' : 'Excel'}
+           </button>
+           <button
+            onClick={() => exportVotes('pdf')}
+             disabled={exporting !== null}
+            className="flex items-center gap-1.5 rounded-lg border border-[--color-border] px-3 py-1.5 text-xs text-[--color-muted] transition-colors hover:border-[--color-gold] hover:text-[--color-fg] disabled:opacity-50"
+          >
+            <FileText className="size-3.5" />
+             {exporting === 'pdf' ? 'Generando…' : 'PDF'}
+          </button>
+         </div>
 
         <HistoryPanel rounds={history} />
       </main>
